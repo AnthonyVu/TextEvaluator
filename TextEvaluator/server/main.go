@@ -15,8 +15,8 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
-	myRouter.HandleFunc("/", evaluateFile).Methods("POST")
-	log.Fatal(http.ListenAndServe(":3001", myRouter))
+	myRouter.HandleFunc("/", evaluateFile)
+	log.Fatal(http.ListenAndServe(":1234", myRouter))
 }
 
 func main() {
