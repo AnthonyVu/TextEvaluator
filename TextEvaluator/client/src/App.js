@@ -1,5 +1,6 @@
-import React, {useCallback}  from 'react';
-import {useDropzone} from 'react-dropzone'
+import React  from 'react';
+import Dropzone from 'react-dropzone'
+import fileService from './services/fileService'
 import './App.css';
 
 
@@ -7,29 +8,27 @@ const Header = (props) => (
   <h2 className="header">Text Evaluator</h2>
 )
 
-function MyDropzone() {
-  const onDrop = useCallback(acceptedFiles => {
-    // Do something with the files
-  }, [])
-  const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
- 
-  return (
-    <div className="dropzone" {...getRootProps()}>
-      <input {...getInputProps()} />
-      {
-        isDragActive ?
-          <p>Drop a file here ...</p> :
-          <p>Drag 'n' drop a file here, or click to select a file</p>
-      }
-    </div>
-  )
-}
-
 function App() {
+  const handleDrop = acceptedFiles => {
+    const formData = new FormData();
+    formData.append('file',acceptedFiles[0])
+    fileService.uploadFile(formData).then(res => {
+      console.log(res)
+    });
+  }
+   
+
   return (
-    <div>
+    <div className="App">
       <Header />
-      <MyDropzone />
+      <Dropzone onDrop={handleDrop}>
+        {({ getRootProps, getInputProps }) => (
+          <div {...getRootProps({ className: "dropzone" })}>
+            <input {...getInputProps()} />
+            <p>Drag'n'drop files, or click to select files</p>
+          </div>
+        )}
+      </Dropzone>
     </div>
   );
 }

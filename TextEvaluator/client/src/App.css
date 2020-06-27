@@ -6,4 +6,7 @@
 .dropzone {
   height: 100px;
   text-align: center;
+  background-color: azure;
+  padding: 20px;
 }
+
