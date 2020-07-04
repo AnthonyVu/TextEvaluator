@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -10,6 +11,7 @@ import (
 
 	"code.sajari.com/docconv"
 	"github.com/gorilla/mux"
+	"github.com/jdkato/prose"
 	"github.com/rs/cors"
 )
 
@@ -18,13 +20,10 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint hit: homePage")
 	r.ParseMultipartForm(32 << 20) // limit your max input length!
 	var buf bytes.Buffer
-	// in your case file would be fileupload
 	file, header, err := r.FormFile("file")
-
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer file.Close()
 	name := strings.Split(header.Filename, ".")
 	fmt.Printf("File name: %s\n", name[0])
@@ -34,35 +33,53 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(res)
-
+		data, _ := json.Marshal(applyProse(res))
+		w.Write(data)
 	} else if name[1] == "doc" {
 		res, _, err := docconv.ConvertDoc(file)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(res)
+		data, _ := json.Marshal(applyProse(res))
+		w.Write(data)
 	} else if name[1] == "txt" {
 		io.Copy(&buf, file)
 		contents := buf.String()
-		fmt.Println(contents)
+		data, _ := json.Marshal(applyProse(contents))
+		w.Write(data)
 		buf.Reset()
 	} else if name[1] == "pdf" {
 		res, _, err := docconv.ConvertPDF(file)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(res)
+		data, _ := json.Marshal(applyProse(res))
+		w.Write(data)
 	} else if name[1] == "html" {
 		res, _, err := docconv.ConvertHTML(file, false)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(res)
+		data, _ := json.Marshal(applyProse(res))
+		w.Write(data)
 	} else {
 		fmt.Printf("invalid file type: %s", name[1])
 	}
 	return
+}
+
+func applyProse(text string) map[string]string {
+	doc, err := prose.NewDocument(text)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Iterate over the doc's tokens:
+	m := make(map[string]string)
+	for _, tok := range doc.Tokens() {
+		m[tok.Text] = tok.Tag
+	}
+	return m
 }
 
 func handleRequests() {

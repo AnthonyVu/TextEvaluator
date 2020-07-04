@@ -1,4 +1,4 @@
-import React  from 'react';
+import React, { useState } from 'react';
 import Dropzone from 'react-dropzone'
 import fileService from './services/fileService'
 import './App.css';
@@ -13,11 +13,12 @@ function App() {
     const formData = new FormData();
     formData.append('file',acceptedFiles[0])
     fileService.uploadFile(formData).then(res => {
-      console.log(res)
+      for (const word in res) {
+        console.log(`${word}: ${res[word]}`);
+      }
     });
   }
    
-
   return (
     <div className="App">
       <Header />
