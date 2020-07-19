@@ -37,14 +37,37 @@ const Home = ({ setWords }) => {
 }
 
 const Evaluation = ({ words }) => {
+  const history = useHistory()
+  if (Object.keys(words).length === 0) {
+    return (
+      <div>
+        <p>Empty</p>
+        <button onClick={() => history.push('/')}>back</button>
+      </div>
+      
+    )
+  }
   return (
     <div>
-      {Object.keys(words).map((key, i) => {
-        return <p key={i}>{key}</p>
+      <button onClick={() => history.push('/')}>back</button>
+      <h1>Nouns</h1>
+      {Object.keys(words.nouns).map((key, i) => {
+        return <p key={i}>{key}, {words.nouns[key]}</p>
+      })}
+      <h1>Adjectives</h1>
+      {Object.keys(words.adjectives).map((key, i) => {
+        return <p key={i}>{key}, {words.adjectives[key]}</p>
+      })}
+      <h1>Verbs</h1>
+      {Object.keys(words.verbs).map((key, i) => {
+        return <p key={i}>{key}, {words.verbs[key]}</p>
+      })}
+      <h1>Adverbs</h1>
+      {Object.keys(words.adverbs).map((key, i) => {
+        return <p key={i}>{key}, {words.adverbs[key]}</p>
       })}
     </div>
   )
-
 }
 
 function App() {
