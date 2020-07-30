@@ -55,13 +55,6 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 		}
 		data, _ := json.Marshal(applyProse(res))
 		w.Write(data)
-	} else if name[1] == "html" {
-		res, _, err := docconv.ConvertHTML(file, false)
-		if err != nil {
-			log.Fatal(err)
-		}
-		data, _ := json.Marshal(applyProse(res))
-		w.Write(data)
 	} else {
 		fmt.Printf("invalid file type: %s", name[1])
 	}
@@ -73,6 +66,7 @@ type evaluatedData struct {
 	Adjectives map[string]int `json:"adjectives"` //JJ, JJR, JJS
 	Verbs      map[string]int `json:"verbs"`      // MD, VB, VBD, VBG, VBN, VBP, VBZ
 	Adverbs    map[string]int `json:"adverbs"`    //RB, RBR, RBS, RP
+	Merged     map[string]int `json:"merged"`
 }
 
 func applyProse(text string) evaluatedData {
@@ -80,38 +74,59 @@ func applyProse(text string) evaluatedData {
 	if err != nil {
 		log.Fatal(err)
 	}
-	data := evaluatedData{make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int)}
+	data := evaluatedData{make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int)}
+	// https://stackoverflow.com/questions/31961882/how-to-check-if-there-is-a-special-character-in-string-or-if-a-character-is-a-sp
+	f := func(r rune) bool {
+		return r < 'A' || r > 'z'
+	}
 	// Iterate over the doc's tokens:
 	for _, tok := range doc.Tokens() {
-		if tok.Tag == "NN" || tok.Tag == "NNP" || tok.Tag == "NNS" || tok.Tag == "POS" || tok.Tag == "PRP" || tok.Tag == "PRP$" {
-			if _, ok := data.Nouns[tok.Text]; ok {
-				data.Nouns[tok.Text]++
-			} else {
-				data.Nouns[tok.Text] = 1
+		text := strings.ToLower(tok.Text)
+		tag := tok.Tag
+		if len(text) > 1 && strings.IndexFunc(text, f) == -1 {
+			if tag == "NN" || tag == "NNS" || tag == "PRP" || tag == "PRP$" {
+				if _, ok := data.Nouns[text]; ok {
+					data.Nouns[text]++
+				} else {
+					data.Nouns[text] = 1
+				}
+			} else if tag == "JJ" || tag == "JJR" || tag == "JJS" {
+				if _, ok := data.Adjectives[text]; ok {
+					data.Adjectives[text]++
+				} else {
+					data.Adjectives[text] = 1
+				}
+			} else if tag == "VB" || tag == "VBD" || tag == "VBG" || tag == "VBN" || tag == "VBP" {
+				if _, ok := data.Verbs[text]; ok {
+					data.Verbs[text]++
+				} else {
+					data.Verbs[text] = 1
+				}
+			} else if tag == "RB" || tag == "RBR" || tag == "RBS" || tag == "RP" {
+				if _, ok := data.Adverbs[text]; ok {
+					data.Adverbs[text]++
+				} else {
+					data.Adverbs[text] = 1
+				}
 			}
-		} else if tok.Tag == "JJ" || tok.Tag == "JJR" || tok.Tag == "JJS" {
-			if _, ok := data.Adjectives[tok.Text]; ok {
-				data.Adjectives[tok.Text]++
-			} else {
-				data.Adjectives[tok.Text] = 1
-			}
-		} else if tok.Tag == "MD" || tok.Tag == "VB" || tok.Tag == "VBD" || tok.Tag == "VBG" || tok.Tag == "VBN" || tok.Tag == "VBP" || tok.Tag == "VBZ" {
-			if _, ok := data.Verbs[tok.Text]; ok {
-				data.Verbs[tok.Text]++
-			} else {
-				data.Verbs[tok.Text] = 1
-			}
-		} else if tok.Tag == "RB" || tok.Tag == "RBR" || tok.Tag == "RBS" || tok.Tag == "RP" {
-			if _, ok := data.Adverbs[tok.Text]; ok {
-				data.Adverbs[tok.Text]++
-			} else {
-				data.Adverbs[tok.Text] = 1
-			}
-		} else {
-			continue
 		}
 	}
+
+	mergeMaps(data.Merged, data.Nouns)
+	mergeMaps(data.Merged, data.Verbs)
+	mergeMaps(data.Merged, data.Adjectives)
+	mergeMaps(data.Merged, data.Adverbs)
 	return data
+}
+
+func mergeMaps(first map[string]int, second map[string]int) {
+	for k, v := range second {
+		if _, ok := first[k]; ok {
+			first[k] += v
+		} else {
+			first[k] = v
+		}
+	}
 }
 
 func handleRequests() {
