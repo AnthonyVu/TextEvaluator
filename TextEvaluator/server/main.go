@@ -111,7 +111,6 @@ func applyProse(text string) evaluatedData {
 			}
 		}
 	}
-
 	mergeMaps(data.Merged, data.Nouns)
 	mergeMaps(data.Merged, data.Verbs)
 	mergeMaps(data.Merged, data.Adjectives)

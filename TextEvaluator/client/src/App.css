@@ -2,17 +2,13 @@
   text-align: center;
 }
 
-.container {
+.chartContainer {
+  width: 100%;
   display: inline-block;
-}
-.box {
-  width: 50%;
-  height: 50%;
-  float: left;
 }
 
 .charts {
-  width: 80%;
+  width: 100%;
   height: 250px;
   margin-bottom: 70px;
 }
@@ -32,7 +28,7 @@
   flex-direction: column;
   align-items: center;
   padding: 30px;
- border: 1px #000000 dashed;
+  border: 1px #000000 dashed;
   background-color: #d3fff5;
   color: #000000;
   transition: border ease-in-out;

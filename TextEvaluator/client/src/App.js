@@ -74,16 +74,16 @@ const Evaluation = ({ words }) => {
     mergedData.push({text: key, value: words.merged[key]})
   })
   Object.keys(words.nouns).map(key => {
-    nouns.push({text: key, value: words.nouns[key]})
+    nouns.push({text: key, count: words.nouns[key]})
   })
   Object.keys(words.adjectives).map(key => {
-    adjectives.push({text: key, value: words.adjectives[key]})
+    adjectives.push({text: key, count: words.adjectives[key]})
   })
   Object.keys(words.verbs).map(key => {
-    verbs.push({text: key, value: words.verbs[key]})
+    verbs.push({text: key, count: words.verbs[key]})
   })
   Object.keys(words.adverbs).map(key => {
-    adverbs.push({text: key, value: words.adverbs[key]})
+    adverbs.push({text: key, count: words.adverbs[key]})
   })
   return (
     <div>
@@ -93,14 +93,13 @@ const Evaluation = ({ words }) => {
         </div>
       </div>
       <div style={{textAlign:'right', float:'right'}}>
-        <p style={{color:'#acaaaa', margin:'0px 10px 10px 10px', fontSize:'12px'}}>Word cloud of all nouns, adjectives, verbs, and adverbs</p>
         <button onClick={() => history.push('/')}>back</button>
       </div>
-      <div className="container">
-        <div className="box"><ChartData label="Nouns" data={nouns} color="#8884d8"/></div>
-        <div className="box"><ChartData label="Adjectives" data={adjectives} color="#82ca9d"/></div>
-        <div className="box"><ChartData label="Verbs" data={verbs} color="#ffce48"/></div>
-        <div className="box"><ChartData label="Adverbs" data={adverbs} color="#ff5555"/></div>
+      <div className="chartContainer">
+        <ChartData label="Nouns" data={nouns} color="#8884d8"/>
+        <ChartData label="Adjectives" data={adjectives} color="#82ca9d"/>
+        <ChartData label="Verbs" data={verbs} color="#ffce48"/>
+        <ChartData label="Adverbs" data={adverbs} color="#ff5555"/>
       </div>
     </div>
   )
@@ -109,10 +108,10 @@ const Evaluation = ({ words }) => {
 const ChartData = ({label, data, color}) => {
   return (
     <div className="charts">
-      <h1>Top 10 Most-used {label}</h1>
+      <h1>{label}</h1>
       <ResponsiveContainer height='100%' width='100%'>
         <BarChart
-          data={data.slice(0,10)}
+          data={data}
           margin={{top: 5, right: 30, left: 20, bottom: 5}}
         >
           <CartesianGrid strokeDasharray="3 3" />
@@ -120,7 +119,7 @@ const ChartData = ({label, data, color}) => {
           <YAxis />
           <Tooltip />
           <Legend />
-          <Bar dataKey="value" fill={color} />
+          <Bar dataKey="count" fill={color} />
         </BarChart>
       </ResponsiveContainer>
     </div>
