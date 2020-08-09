@@ -1,14 +1,50 @@
+#root {
+  text-align: center;
+}
+
+.container {
+  display: inline-block;
+}
+.box {
+  width: 50%;
+  height: 50%;
+  float: left;
+}
+
+.charts {
+  width: 80%;
+  height: 250px;
+  margin-bottom: 70px;
+}
+
+.App {
+  width: 80%;
+  display: inline-block;
+}
+
 .header {
   font-size: 50px;
   text-align: center;
 }
 
 .dropzone {
-  margin-left: 50px;
-  margin-right: 50px;
-  text-align: center;
-  background-color: rgb(144, 231, 212);
-  padding: 20px;
-  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+ border: 1px #000000 dashed;
+  background-color: #d3fff5;
+  color: #000000;
+  transition: border ease-in-out;
 }
 
+.dropzone:hover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  border: 1px #000000 dashed;
+  background-color: #90e7d4;
+  color: #ffffff;
+  transition: border ease-in-out;
+}
