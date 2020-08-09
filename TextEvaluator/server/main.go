@@ -15,50 +15,69 @@ import (
 	"github.com/rs/cors"
 )
 
-//https://stackoverflow.com/questions/40684307/how-can-i-receive-an-uploaded-file-using-a-golang-net-http-server
+// http://sanatgersappa.blogspot.com/2013/03/handling-multiple-file-uploads-in-go.html
 func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint hit: homePage")
-	r.ParseMultipartForm(32 << 20) // limit your max input length!
-	var buf bytes.Buffer
-	file, header, err := r.FormFile("file")
+	err := r.ParseMultipartForm(100000)
 	if err != nil {
-		log.Fatal(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	defer file.Close()
-	name := strings.Split(header.Filename, ".")
-	fmt.Printf("File name: %s\n", name[0])
-	fmt.Println(name[1])
-	if name[1] == "docx" {
-		res, _, err := docconv.ConvertDocx(file)
+
+	result := evaluatedData{make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int)}
+	//get a ref to the parsed multipart form
+	m := r.MultipartForm
+	files := m.File["file"]
+	var buf bytes.Buffer
+	for i := range files {
+		//for each fileheader, get a handle to the actual file
+		file, err := files[i].Open()
+		defer file.Close()
 		if err != nil {
-			log.Fatal(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
-		data, _ := json.Marshal(applyProse(res))
-		w.Write(data)
-	} else if name[1] == "doc" {
-		res, _, err := docconv.ConvertDoc(file)
-		if err != nil {
-			log.Fatal(err)
+		name := strings.Split(files[i].Filename, ".")
+		fmt.Printf("File name: %s\n", name[0])
+		fmt.Println(name[1])
+		if name[1] == "docx" {
+			res, _, err := docconv.ConvertDocx(file)
+			if err != nil {
+				log.Fatal(err)
+			}
+			result.merge(applyProse(res))
+		} else if name[1] == "doc" {
+			res, _, err := docconv.ConvertDoc(file)
+			if err != nil {
+				log.Fatal(err)
+			}
+			result.merge(applyProse(res))
+		} else if name[1] == "txt" {
+			io.Copy(&buf, file)
+			contents := buf.String()
+			result.merge(applyProse(contents))
+			buf.Reset()
+		} else if name[1] == "pdf" {
+			res, _, err := docconv.ConvertPDF(file)
+			if err != nil {
+				log.Fatal(err)
+			}
+			result.merge(applyProse(res))
+		} else {
+			fmt.Printf("invalid file type: %s", name[1])
 		}
-		data, _ := json.Marshal(applyProse(res))
-		w.Write(data)
-	} else if name[1] == "txt" {
-		io.Copy(&buf, file)
-		contents := buf.String()
-		data, _ := json.Marshal(applyProse(contents))
-		w.Write(data)
-		buf.Reset()
-	} else if name[1] == "pdf" {
-		res, _, err := docconv.ConvertPDF(file)
-		if err != nil {
-			log.Fatal(err)
-		}
-		data, _ := json.Marshal(applyProse(res))
-		w.Write(data)
-	} else {
-		fmt.Printf("invalid file type: %s", name[1])
 	}
+	data, _ := json.Marshal(result)
+	w.Write(data)
 	return
+}
+
+func (orig evaluatedData) merge(ed evaluatedData) {
+	mergeMaps(orig.Adjectives, ed.Adjectives)
+	mergeMaps(orig.Adverbs, ed.Adverbs)
+	mergeMaps(orig.Merged, ed.Merged)
+	mergeMaps(orig.Nouns, ed.Nouns)
+	mergeMaps(orig.Verbs, ed.Verbs)
 }
 
 type evaluatedData struct {

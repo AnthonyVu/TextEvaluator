@@ -17,18 +17,22 @@ const Header = (props) => (
 
 const Home = ({ setWords }) => {
   const history = useHistory()
-
+  const formData = new FormData();
   const handleDrop = acceptedFiles => {
-    console.log(acceptedFiles[0])
-    if(acceptedFiles[0].type !== "application/pdf" 
-      && acceptedFiles[0].type !== "text/plain" 
-      && acceptedFiles[0].type !== "application/msword" 
-      && acceptedFiles[0].type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+    acceptedFiles.forEach((file) => {
+      if(file.type !== "application/pdf" 
+      && file.type !== "text/plain" 
+      && file.type !== "application/msword" 
+      && file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
         alert("wrong file type, only pdfs, txt, doc, and docs files work!")
         return
       }
-    const formData = new FormData();
-    formData.append('file',acceptedFiles[0])
+    console.log(file)
+    formData.append('file',file)
+    })
+  }
+
+  const evaluate = () => {
     fileService.uploadFile(formData).then(res => {
       setWords(res)
       history.push('/evaluation')
@@ -37,7 +41,10 @@ const Home = ({ setWords }) => {
 
   return (
     <div>
-      <Dropzone onDrop={handleDrop}>
+      <Dropzone 
+        maxFiles={5}
+        multiple={true} 
+        onDrop={handleDrop}>
         {({ getRootProps, getInputProps }) => (
           <div className="dropzone" {...getRootProps()}>
             <input {...getInputProps()}/>
@@ -45,6 +52,7 @@ const Home = ({ setWords }) => {
           </div>
         )}
       </Dropzone>
+      <button onClick={evaluate}>Evaluate</button>
     </div>
   )
 }
