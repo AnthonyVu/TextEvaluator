@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import Dropzone from 'react-dropzone'
-import ReactWordcloud from 'react-wordcloud';
+import ReactWordcloud from 'react-wordcloud'
 import fileService from './services/fileService'
+import fileImg from './file.png'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
@@ -15,24 +16,52 @@ const Header = (props) => (
   <h2 className="header">Text Evaluator</h2>
 )
 
-const Home = ({ setWords }) => {
+const File = ({file, files, setFiles}) => {
+  const deleteFile = () => {
+    const newFiles = files.filter(curr => curr.name !== file.name)
+    setFiles(newFiles)
+  }
+  return (
+    <div>
+      <p><img src={fileImg} alt="logo"></img> {file.name} <button onClick={deleteFile}>x</button></p>
+    </div>
+  )
+}
+
+const BackButton = ({files, onClick}) => {
+  if(files.length === 0) {
+    return (<button disabled={true}>Evaluate</button>)
+  }
+  return (
+    <button onClick={onClick}>Evaluate</button>
+  )
+}
+
+const Home = ({ setWords, files, setFiles }) => {
   const history = useHistory()
   const formData = new FormData();
   const handleDrop = acceptedFiles => {
-    acceptedFiles.forEach((file) => {
-      if(file.type !== "application/pdf" 
-      && file.type !== "text/plain" 
-      && file.type !== "application/msword" 
-      && file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-        alert("wrong file type, only pdfs, txt, doc, and docs files work!")
-        return
-      }
-    console.log(file)
-    formData.append('file',file)
-    })
+    if(acceptedFiles[0].type !== "application/pdf" 
+    && acceptedFiles[0].type !== "text/plain" 
+    && acceptedFiles[0].type !== "application/msword" 
+    && acceptedFiles[0].type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      alert("wrong file type, only pdfs, txt, doc, and docs files work!")
+      return
+    }
+    if(files.length === 5) {
+      alert("Maximum of 5 files!")
+    } else if (files.filter(file => file.name === acceptedFiles[0].name).length > 0){ 
+      alert("file already added!")
+    } else {
+      const newFiles = files.concat(acceptedFiles[0])
+      setFiles(newFiles)
+    }
   }
 
   const evaluate = () => {
+    files.forEach(file => {
+      formData.append('file',file)
+    })
     fileService.uploadFile(formData).then(res => {
       setWords(res)
       history.push('/evaluation')
@@ -42,28 +71,33 @@ const Home = ({ setWords }) => {
   return (
     <div>
       <Dropzone 
-        maxFiles={5}
-        multiple={true} 
         onDrop={handleDrop}>
         {({ getRootProps, getInputProps }) => (
           <div className="dropzone" {...getRootProps()}>
             <input {...getInputProps()}/>
-            <p>Drag'n'drop a file, or click to select a file</p>
+            <p>Drag'n'drop a file, or click to select a file.</p>
           </div>
         )}
       </Dropzone>
-      <button onClick={evaluate}>Evaluate</button>
+      <BackButton files={files} onClick={evaluate}/>
+      {files.map((file,i) => 
+        <File key={i} file={file} files={files} setFiles={setFiles} />
+      )}
     </div>
   )
 }
 
-const Evaluation = ({ words }) => {
+const Evaluation = ({ words, setFiles }) => {
   const history = useHistory()
+  const reset = () => {
+    history.push('/')
+    setFiles([])
+  }
   if (Object.keys(words).length === 0) {
     return (
       <div >
         <p>Empty</p>
-        <button onClick={() => history.push('/')}>back</button>
+        <button onClick={reset}>back</button>
       </div>
       
     )
@@ -101,7 +135,7 @@ const Evaluation = ({ words }) => {
         </div>
       </div>
       <div style={{textAlign:'right', float:'right'}}>
-        <button onClick={() => history.push('/')}>back</button>
+        <button onClick={reset}>back</button>
       </div>
       <div className="chartContainer">
         <ChartData label="Nouns" data={nouns} color="#8884d8"/>
@@ -135,19 +169,18 @@ const ChartData = ({label, data, color}) => {
 }
 
 function App() {
-  
   const [words, setWords] = useState({});
-
+  const [files, setFiles] = useState([]);
   return (
     <div className="App">
       <Header />
       <Router>
         <Switch>
           <Route path="/evaluation">
-            <Evaluation words={words}/>
+            <Evaluation words={words} setFiles={setFiles}/>
           </Route>
           <Route path="/">
-            <Home setWords={setWords}/>
+            <Home setWords={setWords} files={files} setFiles={setFiles}/>
           </Route>
         </Switch>
       </Router>
