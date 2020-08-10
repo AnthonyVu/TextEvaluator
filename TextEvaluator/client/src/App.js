@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Dropzone from 'react-dropzone'
 import ReactWordcloud from 'react-wordcloud'
 import fileService from './services/fileService'
 import fileImg from './file.png'
+import loadingImg from './running.gif'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
@@ -11,16 +12,18 @@ import {
   BrowserRouter as Router,
   Switch, Route, useHistory
 } from "react-router-dom"
+import LoadingScreen from 'react-loading-screen'
 
 const Header = (props) => (
   <h2 className="header">Text Evaluator</h2>
 )
 
-const File = ({file, files, setFiles}) => {
+const Files = ({file, files, setFiles}) => {
   const deleteFile = () => {
     const newFiles = files.filter(curr => curr.name !== file.name)
     setFiles(newFiles)
   }
+  console.log(file)
   return (
     <div>
       <p><img src={fileImg} alt="logo"></img> {file.name} <button onClick={deleteFile}>x</button></p>
@@ -40,34 +43,48 @@ const BackButton = ({files, onClick}) => {
 const Home = ({ setWords, files, setFiles }) => {
   const history = useHistory()
   const formData = new FormData();
+  const [loading, setLoading] = useState(false)
+
+  // https://medium.com/dailyjs/rewriting-javascript-converting-an-array-of-objects-to-an-object-ec579cafbfc7
+  // const arrayToObject = (array) =>
+  //  array.reduce((obj, item) => {
+  //    obj[item.id] = item
+  //    return obj
+  //  }, {})
+
   const handleDrop = acceptedFiles => {
-    if(acceptedFiles[0].type !== "application/pdf" 
-    && acceptedFiles[0].type !== "text/plain" 
-    && acceptedFiles[0].type !== "application/msword" 
-    && acceptedFiles[0].type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-      alert("wrong file type, only pdfs, txt, doc, and docs files work!")
-      return
-    }
-    if(files.length === 5) {
-      alert("Maximum of 5 files!")
-    } else if (files.filter(file => file.name === acceptedFiles[0].name).length > 0){ 
-      alert("file already added!")
-    } else {
-      const newFiles = files.concat(acceptedFiles[0])
-      setFiles(newFiles)
-    }
+    acceptedFiles.forEach((file) => {
+      if(file.type !== "application/pdf" 
+        && file.type !== "text/plain" 
+        && file.type !== "application/msword" 
+        && file.type !== "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+          alert("wrong file type, only pdfs, txt, doc, and docs files work!")
+          return
+      }
+      if(files.length === 5) {
+        alert("Maximum of 5 files!")
+      } else if (files.filter(curr => curr.name === file.name).length > 0){ 
+        alert("file already added!")
+      } else {
+        const newFiles = files.concat(file)
+        setFiles(newFiles)
+      }
+    })
   }
 
   const evaluate = () => {
     files.forEach(file => {
       formData.append('file',file)
     })
+    setLoading(true)
+    
     fileService.uploadFile(formData).then(res => {
+      window.localStorage.setItem('processedData', JSON.stringify(res))
       setWords(res)
+      setLoading(false)
       history.push('/evaluation')
     });
   }
-
   return (
     <div>
       <Dropzone 
@@ -80,18 +97,31 @@ const Home = ({ setWords, files, setFiles }) => {
         )}
       </Dropzone>
       <BackButton files={files} onClick={evaluate}/>
+      <LoadingScreen
+        loading={loading}
+        bgColor='#ffffff'
+        // https://giphy.com/gifs/art-sonic-youchew-hoJoitYEzdRok
+        logoSrc={loadingImg}
+        spinnerColor='#9ee5f8'
+        textColor='#676767'
+        text='Please wait...'
+        children=''
+      > 
+      </LoadingScreen>
       {files.map((file,i) => 
-        <File key={i} file={file} files={files} setFiles={setFiles} />
+        <Files key={i} file={file} files={files} setFiles={setFiles} />
       )}
     </div>
   )
 }
 
-const Evaluation = ({ words, setFiles }) => {
+const Evaluation = ({ words, setFiles, setWords }) => {
   const history = useHistory()
   const reset = () => {
     history.push('/')
     setFiles([])
+    setWords({})
+    window.localStorage.setItem('processedData', JSON.stringify({}))
   }
   if (Object.keys(words).length === 0) {
     return (
@@ -99,7 +129,6 @@ const Evaluation = ({ words, setFiles }) => {
         <p>Empty</p>
         <button onClick={reset}>back</button>
       </div>
-      
     )
   }
 
@@ -171,13 +200,28 @@ const ChartData = ({label, data, color}) => {
 function App() {
   const [words, setWords] = useState({});
   const [files, setFiles] = useState([]);
+
+  useEffect(() => {
+    const savedEvaluation = window.localStorage.getItem('processedData')
+    // const savedFiles = window.localStorage.getItem('files')
+    // if(savedFiles) {
+    //   const res = JSON.parse(savedFiles)
+    //   console.log(Object.values(res))
+    //   setFiles(Object.values(res))
+    // }
+    if (savedEvaluation) {
+      const res = JSON.parse(savedEvaluation)
+      setWords(res)
+    }
+  }, [])
+  console.log(files)
   return (
     <div className="App">
       <Header />
       <Router>
         <Switch>
           <Route path="/evaluation">
-            <Evaluation words={words} setFiles={setFiles}/>
+            <Evaluation words={words} setFiles={setFiles} setWords={setWords}/>
           </Route>
           <Route path="/">
             <Home setWords={setWords} files={files} setFiles={setFiles}/>
