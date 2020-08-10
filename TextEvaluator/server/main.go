@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os/exec"
 	"strings"
 
 	"code.sajari.com/docconv"
@@ -24,51 +26,76 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := evaluatedData{make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int)}
+	dataToProcess := evaluatedData{make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int)}
 	//get a ref to the parsed multipart form
 	m := r.MultipartForm
 	files := m.File["file"]
 	var buf bytes.Buffer
+	count := 0
+	ch := make(chan evaluatedData, 5)
 	for i := range files {
+		count++
 		//for each fileheader, get a handle to the actual file
 		file, err := files[i].Open()
 		defer file.Close()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		name := strings.Split(files[i].Filename, ".")
-		fmt.Printf("File name: %s\n", name[0])
-		fmt.Println(name[1])
-		if name[1] == "docx" {
-			res, _, err := docconv.ConvertDocx(file)
+		go func(chan evaluatedData) {
 			if err != nil {
-				log.Fatal(err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
 			}
-			result.merge(applyProse(res))
-		} else if name[1] == "doc" {
-			res, _, err := docconv.ConvertDoc(file)
-			if err != nil {
-				log.Fatal(err)
+			name := strings.Split(files[i].Filename, ".")
+			if name[1] == "docx" {
+				res, _, err := docconv.ConvertDocx(file)
+				if err != nil {
+					log.Fatal(err)
+				}
+				ch <- applyProse(res)
+			} else if name[1] == "doc" {
+				res, _, err := docconv.ConvertDoc(file)
+				if err != nil {
+					log.Fatal(err)
+				}
+				ch <- applyProse(res)
+			} else if name[1] == "txt" {
+				io.Copy(&buf, file)
+				contents := buf.String()
+				ch <- applyProse(contents)
+				buf.Reset()
+			} else if name[1] == "pdf" {
+				res, _, err := docconv.ConvertPDF(file)
+				if err != nil {
+					log.Fatal(err)
+				}
+				ch <- applyProse(res)
+			} else {
+				fmt.Printf("invalid file type: %s", name[1])
 			}
-			result.merge(applyProse(res))
-		} else if name[1] == "txt" {
-			io.Copy(&buf, file)
-			contents := buf.String()
-			result.merge(applyProse(contents))
-			buf.Reset()
-		} else if name[1] == "pdf" {
-			res, _, err := docconv.ConvertPDF(file)
-			if err != nil {
-				log.Fatal(err)
-			}
-			result.merge(applyProse(res))
-		} else {
-			fmt.Printf("invalid file type: %s", name[1])
-		}
+		}(ch)
 	}
-	data, _ := json.Marshal(result)
-	w.Write(data)
+	for i := 0; i < count; i++ {
+		file := <-ch
+		dataToProcess.merge(file)
+	}
+
+	//https://www.golangprograms.com/golang-writing-struct-to-json-file.html
+	// write result out to file
+	file, _ := json.MarshalIndent(dataToProcess, "", " ")
+	_ = ioutil.WriteFile("data.json", file, 0644)
+
+	// read result in python and sort the map write to another file
+	// https://stackoverflow.com/questions/41415337/running-external-python-in-golang-catching-continuous-exec-command-stdout
+	cmd := exec.Command("python", "script.py")
+	output, err := cmd.Output()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(output))
+
+	// read result from file
+	// https://www.golangprograms.com/golang-read-json-file-into-struct.html
+	result, _ := ioutil.ReadFile("result.json")
+	// send to client
+	w.Write(result)
 	return
 }
 
