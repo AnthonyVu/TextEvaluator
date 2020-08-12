@@ -21,6 +21,7 @@ import (
 	"github.com/rs/cors"
 )
 
+// https://golang.org/pkg/mime/multipart/
 type FileHeader struct {
 	Filename string
 	Header   textproto.MIMEHeader
@@ -32,7 +33,7 @@ type FileHeader struct {
 func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	fmt.Println("Endpoint hit: homePage")
-	err := r.ParseMultipartForm(100000)
+	err := r.ParseMultipartForm(32 * 1 << 20) // 32 MB
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -43,7 +44,7 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	m := r.MultipartForm
 	files := m.File["file"]
 	var buf bytes.Buffer
-	ch := make(chan evaluatedData, 5) // max of 5 files
+	ch := make(chan evaluatedData, 5) // max of 5 goroutines
 	wg := sync.WaitGroup{}
 	for i := range files {
 		//for each fileheader, get a handle to the actual file
@@ -56,6 +57,7 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 		name := strings.Split(files[i].Filename, ".")
 		wg.Add(1)
 		go func(*multipart.FileHeader, []string) {
+			defer wg.Done()
 			fmt.Println(name)
 			if name[1] == "docx" {
 				res, _, err := docconv.ConvertDocx(file)
@@ -83,7 +85,6 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 			} else {
 				fmt.Printf("invalid file type: %s", name[1])
 			}
-			wg.Done()
 		}(files[i], name)
 	}
 	wg.Wait()
