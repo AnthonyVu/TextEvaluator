@@ -9,7 +9,7 @@ import {
 import './App.css';
 import {
   BrowserRouter as Router,
-  Switch, Route, useHistory, Redirect
+  Switch, Route, useHistory
 } from "react-router-dom"
 import LoadingScreen from 'react-loading-screen'
 
@@ -22,11 +22,18 @@ const Header = ({setFiles, setWords}) => {
     window.localStorage.setItem('processedData', JSON.stringify({}))
   }
 
+  const resetAbout = () => {
+    history.push('/about')
+    setFiles([])
+    setWords({})
+    window.localStorage.setItem('processedData', JSON.stringify({}))
+  }
+
   return (
     <div className="header">
       <h2 onClick={reset}>Text Evaluator</h2>
       <p className="nav" onClick={reset}>Home</p>
-      <p className="nav">About</p>
+      <p className="nav" onClick={resetAbout}>About</p>
     </div>
   )
 }
@@ -71,6 +78,14 @@ const CurrentFiles = ({files, setFiles}) => {
   }
   return <div></div>
   }
+
+const About = () => (
+  <div className="about">
+    <p>Drop or select up to 5 files (.pdf, .doc, .docx, or .txt) and this program will evaluate the 100 most used nouns, adjectives, verbs, and adverbs.</p>
+    <p>This program works well with average-sized files (less than or equal to 100,000 words). Too small a file and you may not get many results; too large a file and you may be waiting a while for the results to process.</p>
+    <p>Built using React, Golang, and Python. </p>
+  </div>
+)
 
 const Home = ({ setWords, files, setFiles }) => {
   const history = useHistory()
@@ -164,19 +179,19 @@ const Evaluation = ({ words, setFiles, setWords }) => {
   var adjectives = []
   var verbs = []
   var adverbs = []
-  Object.keys(words.merged).map(key => {
+  Object.keys(words.merged).forEach(key => {
     mergedData.push({text: key, value: words.merged[key]})
   })
-  Object.keys(words.nouns).map(key => {
+  Object.keys(words.nouns).forEach(key => {
     nouns.push({text: key, count: words.nouns[key]})
   })
-  Object.keys(words.adjectives).map(key => {
+  Object.keys(words.adjectives).forEach(key => {
     adjectives.push({text: key, count: words.adjectives[key]})
   })
-  Object.keys(words.verbs).map(key => {
+  Object.keys(words.verbs).forEach(key => {
     verbs.push({text: key, count: words.verbs[key]})
   })
-  Object.keys(words.adverbs).map(key => {
+  Object.keys(words.adverbs).forEach(key => {
     adverbs.push({text: key, count: words.adverbs[key]})
   })
   return (
@@ -229,7 +244,6 @@ function App() {
       setWords(res)
     }
   }, [])
-  console.log(files)
   return (
     <div className="App">
         <Router>
@@ -238,6 +252,9 @@ function App() {
           <Switch>
             <Route path="/evaluation">
               <Evaluation words={words} setFiles={setFiles} setWords={setWords}/>
+            </Route>
+            <Route path="/about">
+              <About />
             </Route>
             <Route path="/">
               <Home setWords={setWords} files={files} setFiles={setFiles}/>

@@ -73,6 +73,15 @@ button:disabled {
   transition: all 0.4s ease 0s;
   }
 
+/* https://wdexplorer.com/20-examples-beautiful-css-typography-design/ */
+.about {
+  color: #4c4a37; 
+  font-family: 'Source Sans Pro', sans-serif; 
+  font-size: 18px; 
+  line-height: 32px; 
+  margin: 0 0 24px;
+  text-align: left;
+}
   
 .header {
   display: flex;
@@ -81,7 +90,7 @@ button:disabled {
   flex-flow: column;
   padding-top: 50px;
   padding-bottom: 20px;
-  margin-bottom: 50px;
+  margin-bottom: 40px;
   width: 100%;
   font-size: 50px;
   text-align: center;
