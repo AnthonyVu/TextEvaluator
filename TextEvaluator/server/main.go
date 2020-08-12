@@ -37,11 +37,12 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	ch := make(chan evaluatedData, 5)
 	wg := sync.WaitGroup{}
 	for i := range files {
+		fmt.Println(files[i].Filename)
 		//for each fileheader, get a handle to the actual file
 		file, err := files[i].Open()
 		defer file.Close()
 		wg.Add(1)
-		go func(chan evaluatedData) {
+		go func() {
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
@@ -74,7 +75,7 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 				fmt.Printf("invalid file type: %s", name[1])
 			}
 			wg.Done()
-		}(ch)
+		}()
 	}
 	wg.Wait()
 	close(ch)
