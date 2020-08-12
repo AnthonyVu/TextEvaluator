@@ -3,7 +3,6 @@ import Dropzone from 'react-dropzone'
 import ReactWordcloud from 'react-wordcloud'
 import fileService from './services/fileService'
 import fileImg from './file.png'
-import loadingImg from './running.gif'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
@@ -14,9 +13,20 @@ import {
 } from "react-router-dom"
 import LoadingScreen from 'react-loading-screen'
 
-const Header = (props) => (
-  <h2 className="header">Text Evaluator</h2>
-)
+const Header = ({setFiles, setWords}) => {
+  const history = useHistory()
+  const reset = () => {
+    history.push('/')
+    setFiles([])
+    setWords({})
+    window.localStorage.setItem('processedData', JSON.stringify({}))
+  }
+  return (
+    <div className="header">
+      <h2 onClick={reset}>Text Evaluator</h2>
+    </div>
+  )
+}
 
 const Files = ({file, files, setFiles}) => {
   const deleteFile = () => {
@@ -26,31 +36,22 @@ const Files = ({file, files, setFiles}) => {
   console.log(file)
   return (
     <div>
-      <p><img src={fileImg} alt="logo"></img> {file.name} <button onClick={deleteFile}>x</button></p>
+      <p><img src={fileImg} alt="logo"></img> {file.name} <button onClick={deleteFile}>delete</button></p>
     </div>
   )
 }
 
-const BackButton = ({files, onClick}) => {
+const EvaluateButton = ({files, onClick}) => {
   if(files.length === 0) {
     return (<button disabled={true}>Evaluate</button>)
   }
-  return (
-    <button onClick={onClick}>Evaluate</button>
-  )
+  return (<button onClick={onClick}>Evaluate</button>)
 }
 
 const Home = ({ setWords, files, setFiles }) => {
   const history = useHistory()
   const formData = new FormData();
   const [loading, setLoading] = useState(false)
-
-  // https://medium.com/dailyjs/rewriting-javascript-converting-an-array-of-objects-to-an-object-ec579cafbfc7
-  // const arrayToObject = (array) =>
-  //  array.reduce((obj, item) => {
-  //    obj[item.id] = item
-  //    return obj
-  //  }, {})
 
   const handleDrop = acceptedFiles => {
     acceptedFiles.forEach((file) => {
@@ -96,14 +97,14 @@ const Home = ({ setWords, files, setFiles }) => {
           </div>
         )}
       </Dropzone>
-      <BackButton files={files} onClick={evaluate}/>
+      <EvaluateButton files={files} onClick={evaluate}/>
       <LoadingScreen
         loading={loading}
         bgColor='#ffffff'
         // https://giphy.com/gifs/art-sonic-youchew-hoJoitYEzdRok
-        logoSrc={loadingImg}
-        spinnerColor='#9ee5f8'
-        textColor='#676767'
+        // logoSrc={loadingImg}
+        spinnerColor='#fd5420'
+        textColor='#fd5420'
         text='Please wait...'
         children=''
       > 
@@ -158,19 +159,17 @@ const Evaluation = ({ words, setFiles, setWords }) => {
   })
   return (
     <div>
-      <div>
-        <div style={{ height: '300px', width: '100%' }}>
-          <ReactWordcloud options={options} words={mergedData} />
-        </div>
-      </div>
-      <div style={{textAlign:'right', float:'right'}}>
-        <button onClick={reset}>back</button>
+      <div style={{ height: '300px', width: '100%' }}>
+        <ReactWordcloud options={options} words={mergedData} />
       </div>
       <div className="chartContainer">
         <ChartData label="Nouns" data={nouns} color="#8884d8"/>
         <ChartData label="Adjectives" data={adjectives} color="#82ca9d"/>
         <ChartData label="Verbs" data={verbs} color="#ffce48"/>
         <ChartData label="Adverbs" data={adverbs} color="#ff5555"/>
+      </div>
+      <div style={{textAlign:'right', float:'right'}}>
+        <button onClick={reset}>back</button>
       </div>
     </div>
   )
@@ -179,7 +178,7 @@ const Evaluation = ({ words, setFiles, setWords }) => {
 const ChartData = ({label, data, color}) => {
   return (
     <div className="charts">
-      <h1>{label}</h1>
+      <h1>Most used {label}</h1>
       <ResponsiveContainer height='100%' width='100%'>
         <BarChart
           data={data}
@@ -203,12 +202,6 @@ function App() {
 
   useEffect(() => {
     const savedEvaluation = window.localStorage.getItem('processedData')
-    // const savedFiles = window.localStorage.getItem('files')
-    // if(savedFiles) {
-    //   const res = JSON.parse(savedFiles)
-    //   console.log(Object.values(res))
-    //   setFiles(Object.values(res))
-    // }
     if (savedEvaluation) {
       const res = JSON.parse(savedEvaluation)
       setWords(res)
@@ -217,17 +210,19 @@ function App() {
   console.log(files)
   return (
     <div className="App">
-      <Header />
-      <Router>
-        <Switch>
-          <Route path="/evaluation">
-            <Evaluation words={words} setFiles={setFiles} setWords={setWords}/>
-          </Route>
-          <Route path="/">
-            <Home setWords={setWords} files={files} setFiles={setFiles}/>
-          </Route>
-        </Switch>
-      </Router>
+        <Router>
+        <Header setFiles={setFiles} setWords={setWords} />
+        <div className="content">
+          <Switch>
+            <Route path="/evaluation">
+              <Evaluation words={words} setFiles={setFiles} setWords={setWords}/>
+            </Route>
+            <Route path="/">
+              <Home setWords={setWords} files={files} setFiles={setFiles}/>
+            </Route>
+          </Switch>
+        </div>
+        </Router>
     </div>
   );
 }

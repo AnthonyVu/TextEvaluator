@@ -1,5 +1,17 @@
-#root {
+.App{
   text-align: center;
+}
+
+h1 {
+  letter-spacing: -2px;
+  border-bottom: 2px solid #b6b6b6;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+h2:hover {
+  color: #fd5420 !important;
+  transition: all 0.4s ease 0s;
 }
 
 .chartContainer {
@@ -13,14 +25,56 @@
   margin-bottom: 70px;
 }
 
-.App {
-  width: 80%;
+.content {
+  width: 60%;
   display: inline-block;
 }
 
+/* https://www.fabriziovanmarciano.com/button-styles/ */
+button {
+  color: #494949 !important;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: #ffffff;
+  padding: 10px;
+  margin: 0px 5px 0px 5px;
+  border: 4px solid #494949 !important;
+  display: inline-block;
+  transition: all 0.4s ease 0s;
+  }
+/* https://www.fabriziovanmarciano.com/button-styles/ */
+button:hover {
+  color: #ffffff !important;
+  background: #fd5420;
+  border-color: #fd5420 !important;
+  transition: all 0.4s ease 0s;
+}
+
+button:disabled {
+  color: #adadad !important;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: #ffffff;
+  padding: 10px;
+  border: 4px solid #adadad !important;
+  display: inline-block;
+  transition: all 0.4s ease 0s;
+  }
+
+  
 .header {
+  display: flex;
+  display: inline-block;
+  height:100%;
+  flex-flow: column;
+  padding-top: 50px;
+  padding-bottom: 50px;
+  margin-bottom: 50px;
+  width: 100%;
   font-size: 50px;
   text-align: center;
+  background: black;
+  color: white;
 }
 
 .dropzone {
@@ -29,9 +83,13 @@
   align-items: center;
   padding: 30px;
   border: 1px #000000 dashed;
-  background-color: #d3fff5;
-  color: #000000;
-  transition: border ease-in-out;
+  color: #494949 !important;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: #ffffff;
+  border: 4px solid #494949 !important;
+  transition: all 0.4s ease 0s;
+  margin-bottom: 20px;
 }
 
 .dropzone:hover {
@@ -40,9 +98,12 @@
   align-items: center;
   padding: 30px;
   border: 1px #000000 dashed;
-  background-color: #90e7d4;
-  color: #ffffff;
-  transition: border ease-in-out;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #ffffff !important;
+  background: #fd5420;
+  border-color: #fd5420 !important;
+  transition: all 0.4s ease 0s;
 }
 
 p img {
