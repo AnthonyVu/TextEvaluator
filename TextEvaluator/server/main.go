@@ -7,7 +7,9 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"os/exec"
 	"strings"
 	"sync"
@@ -18,6 +20,13 @@ import (
 	"github.com/jdkato/prose"
 	"github.com/rs/cors"
 )
+
+type FileHeader struct {
+	Filename string
+	Header   textproto.MIMEHeader
+	Size     int64 // Go 1.9
+	// contains filtered or unexported fields
+}
 
 // http://sanatgersappa.blogspot.com/2013/03/handling-multiple-file-uploads-in-go.html
 func evaluateFile(w http.ResponseWriter, r *http.Request) {
@@ -34,20 +43,20 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	m := r.MultipartForm
 	files := m.File["file"]
 	var buf bytes.Buffer
-	ch := make(chan evaluatedData, 5)
+	ch := make(chan evaluatedData, 5) // max of 5 files
 	wg := sync.WaitGroup{}
 	for i := range files {
-		fmt.Println(files[i].Filename)
 		//for each fileheader, get a handle to the actual file
 		file, err := files[i].Open()
 		defer file.Close()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		name := strings.Split(files[i].Filename, ".")
 		wg.Add(1)
-		go func() {
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			name := strings.Split(files[i].Filename, ".")
+		go func(*multipart.FileHeader, []string) {
+			fmt.Println(name)
 			if name[1] == "docx" {
 				res, _, err := docconv.ConvertDocx(file)
 				if err != nil {
@@ -75,7 +84,7 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 				fmt.Printf("invalid file type: %s", name[1])
 			}
 			wg.Done()
-		}()
+		}(files[i], name)
 	}
 	wg.Wait()
 	close(ch)

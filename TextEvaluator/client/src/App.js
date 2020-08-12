@@ -43,7 +43,6 @@ const File = ({file, files, setFiles}) => {
     const newFiles = files.filter(curr => curr.name !== file.name)
     setFiles(newFiles)
   }
-  console.log(file)
   if (file.name.length > 75) {
     return (
       <div className="file">
