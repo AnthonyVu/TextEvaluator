@@ -67,7 +67,7 @@ const EvaluateButton = ({files, onClick}) => {
 const CurrentFiles = ({files, setFiles}) => {
   if (files.length !== 0) {
     return (
-      <div>
+      <div className="currFiles">
         <h1>Current Files (Max of 5)</h1>
         {files.map((file,i) => 
           <File key={i} file={file} files={files} setFiles={setFiles} />
