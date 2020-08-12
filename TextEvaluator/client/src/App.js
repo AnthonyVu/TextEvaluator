@@ -9,7 +9,7 @@ import {
 import './App.css';
 import {
   BrowserRouter as Router,
-  Switch, Route, useHistory
+  Switch, Route, useHistory, Redirect
 } from "react-router-dom"
 import LoadingScreen from 'react-loading-screen'
 
@@ -21,22 +21,32 @@ const Header = ({setFiles, setWords}) => {
     setWords({})
     window.localStorage.setItem('processedData', JSON.stringify({}))
   }
+
   return (
     <div className="header">
       <h2 onClick={reset}>Text Evaluator</h2>
+      <p className="nav" onClick={reset}>Home</p>
+      <p className="nav">About</p>
     </div>
   )
 }
 
-const Files = ({file, files, setFiles}) => {
+const File = ({file, files, setFiles}) => {
   const deleteFile = () => {
     const newFiles = files.filter(curr => curr.name !== file.name)
     setFiles(newFiles)
   }
   console.log(file)
+  if (file.name.length > 75) {
+    return (
+      <div className="file">
+        <p><img src={fileImg} alt="logo"></img> {file.name.substring(0, 75)+"..."} <button className="fileBtn" onClick={deleteFile}>delete</button></p>
+      </div>
+    )
+  }
   return (
-    <div>
-      <p><img src={fileImg} alt="logo"></img> {file.name} <button onClick={deleteFile}>delete</button></p>
+    <div className="file">
+      <p><img src={fileImg} alt="logo"></img> {file.name} <button className="fileBtn" onClick={deleteFile}>delete</button></p>
     </div>
   )
 }
@@ -47,6 +57,20 @@ const EvaluateButton = ({files, onClick}) => {
   }
   return (<button onClick={onClick}>Evaluate</button>)
 }
+
+const CurrentFiles = ({files, setFiles}) => {
+  if (files.length !== 0) {
+    return (
+      <div>
+        <h1>Current Files (Max of 5)</h1>
+        {files.map((file,i) => 
+          <File key={i} file={file} files={files} setFiles={setFiles} />
+        )}
+      </div>
+    )
+  }
+  return <div></div>
+  }
 
 const Home = ({ setWords, files, setFiles }) => {
   const history = useHistory()
@@ -109,9 +133,7 @@ const Home = ({ setWords, files, setFiles }) => {
         children=''
       > 
       </LoadingScreen>
-      {files.map((file,i) => 
-        <Files key={i} file={file} files={files} setFiles={setFiles} />
-      )}
+      <CurrentFiles files={files} setFiles={setFiles}/>
     </div>
   )
 }
@@ -162,14 +184,14 @@ const Evaluation = ({ words, setFiles, setWords }) => {
       <div style={{ height: '300px', width: '100%' }}>
         <ReactWordcloud options={options} words={mergedData} />
       </div>
+      <div style={{textAlign:'right', float:'right'}}>
+        <button onClick={reset}>back</button>
+      </div>
       <div className="chartContainer">
         <ChartData label="Nouns" data={nouns} color="#8884d8"/>
         <ChartData label="Adjectives" data={adjectives} color="#82ca9d"/>
         <ChartData label="Verbs" data={verbs} color="#ffce48"/>
         <ChartData label="Adverbs" data={adverbs} color="#ff5555"/>
-      </div>
-      <div style={{textAlign:'right', float:'right'}}>
-        <button onClick={reset}>back</button>
       </div>
     </div>
   )

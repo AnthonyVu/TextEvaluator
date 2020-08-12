@@ -9,9 +9,20 @@ h1 {
   text-transform: uppercase;
 }
 
+.file {
+  width: 100%;
+  display: inline-block;
+  text-align: left;
+}
+
+.fileBtn {
+  float: right;
+}
+
 h2:hover {
   color: #fd5420 !important;
   transition: all 0.4s ease 0s;
+  cursor: pointer;
 }
 
 .chartContainer {
@@ -48,6 +59,7 @@ button:hover {
   background: #fd5420;
   border-color: #fd5420 !important;
   transition: all 0.4s ease 0s;
+  cursor: pointer;
 }
 
 button:disabled {
@@ -68,13 +80,26 @@ button:disabled {
   height:100%;
   flex-flow: column;
   padding-top: 50px;
-  padding-bottom: 50px;
+  padding-bottom: 20px;
   margin-bottom: 50px;
   width: 100%;
   font-size: 50px;
   text-align: center;
   background: black;
   color: white;
+}
+
+.nav {
+  font-size: 20px;
+  display: inline;
+  margin: 10px;
+  text-decoration: none;
+}
+
+.nav:hover {
+  color: #fd5420 !important;
+  transition: all 0.4s ease 0s;
+  cursor: pointer;
 }
 
 .dropzone {
@@ -85,7 +110,6 @@ button:disabled {
   border: 1px #000000 dashed;
   color: #494949 !important;
   text-transform: uppercase;
-  text-decoration: none;
   background: #ffffff;
   border: 4px solid #494949 !important;
   transition: all 0.4s ease 0s;
@@ -99,11 +123,11 @@ button:disabled {
   padding: 30px;
   border: 1px #000000 dashed;
   text-transform: uppercase;
-  text-decoration: none;
   color: #ffffff !important;
   background: #fd5420;
   border-color: #fd5420 !important;
   transition: all 0.4s ease 0s;
+  cursor: pointer;
 }
 
 p img {
