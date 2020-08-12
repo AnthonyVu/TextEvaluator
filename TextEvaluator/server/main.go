@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"os/exec"
 	"strings"
+	"sync"
+	"time"
 
 	"code.sajari.com/docconv"
 	"github.com/gorilla/mux"
@@ -19,6 +21,7 @@ import (
 
 // http://sanatgersappa.blogspot.com/2013/03/handling-multiple-file-uploads-in-go.html
 func evaluateFile(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
 	fmt.Println("Endpoint hit: homePage")
 	err := r.ParseMultipartForm(100000)
 	if err != nil {
@@ -31,13 +34,13 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	m := r.MultipartForm
 	files := m.File["file"]
 	var buf bytes.Buffer
-	count := 0
 	ch := make(chan evaluatedData, 5)
+	wg := sync.WaitGroup{}
 	for i := range files {
-		count++
 		//for each fileheader, get a handle to the actual file
 		file, err := files[i].Open()
 		defer file.Close()
+		wg.Add(1)
 		go func(chan evaluatedData) {
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -70,11 +73,13 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 			} else {
 				fmt.Printf("invalid file type: %s", name[1])
 			}
+			wg.Done()
 		}(ch)
 	}
-	for i := 0; i < count; i++ {
-		file := <-ch
-		dataToProcess.merge(file)
+	wg.Wait()
+	close(ch)
+	for f := range ch {
+		dataToProcess.merge(f)
 	}
 
 	//https://www.golangprograms.com/golang-writing-struct-to-json-file.html
@@ -96,6 +101,9 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	result, _ := ioutil.ReadFile("result.json")
 	// send to client
 	w.Write(result)
+	end := time.Now()
+	dur := end.Sub(start)
+	fmt.Println(dur)
 	return
 }
 
