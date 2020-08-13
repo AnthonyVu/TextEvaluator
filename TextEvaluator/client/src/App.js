@@ -17,7 +17,7 @@ import DoneOutlined from '@material-ui/icons/DoneOutlined'
 import DeleteOutlined from '@material-ui/icons/DeleteOutlined'
 import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined'
 import CreateOutlined from '@material-ui/icons/CreateOutlined'
-import ArrowBackIosSharpIcon from '@material-ui/icons/ArrowBackIosSharp';
+import ArrowBackIosSharpIcon from '@material-ui/icons/ArrowBackIosSharp'
 
 const Header = ({setFiles, setWords}) => {
   const history = useHistory()

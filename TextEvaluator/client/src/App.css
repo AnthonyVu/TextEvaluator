@@ -140,3 +140,11 @@ button:disabled {
   vertical-align: text-bottom;
   margin-right: 2px;
 }
+
+/* #root {
+  background-image:url('./background.png');
+  background-position:center;
+  position: fixed;
+  min-width: 100%;
+  min-height: 100%;
+} */

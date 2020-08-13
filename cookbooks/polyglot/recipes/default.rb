@@ -1,4 +1,5 @@
-ubuntu_mirror = 'https://mirror.its.sfu.ca/mirror/ubuntu/'
+#ubuntu_mirror = 'https://mirror.its.sfu.ca/mirror/ubuntu/'
+ubuntu_mirror = 'http://mirror.csclub.uwaterloo.ca/ubuntu/'
 ubuntu_release = 'bionic'
 ubuntu_version = '18.04'
 username = 'vagrant'
@@ -161,14 +162,33 @@ package ['nodejs']
 #execute '/opt/graalvm/bin/gu install llvm-toolchain' do
 #  creates "/opt/#{graalvm_directory}/bin/lli"
 #end
-execute 'nohup npm start &' do
+execute 'sudo snap install --classic go' do
+  cwd user_home
+  user username
+  environment 'HOME' => user_home
+end
+execute 'npm install' do
   cwd project_home + '/client'
   user username
   environment 'HOME' => user_home
 end
-
-execute 'nohup go run main.go &' do
-  cwd project_home + '/server'
+execute 'screen -S client -dm npm start' do
+  cwd project_home + '/client'
   user username
   environment 'HOME' => user_home
+end
+execute 'sudo apt-get install poppler-utils wv unrtf tidy -y' do
+  cwd project_home + '/server'
+  user username
+  environment ({ 'HOME' => user_home, 'GOPATH' => project_home + '/server' })
+end
+execute 'go get code.sajari.com/docconv github.com/gorilla/mux github.com/jdkato/prose github.com/rs/cors github.com/JalfResi/justext' do
+  cwd project_home + '/server'
+  user username
+  environment ({ 'HOME' => user_home, 'GOPATH' => project_home + '/server' })
+end
+execute 'screen -S server -dm go run main.go' do
+  cwd project_home + '/server'
+  user username
+  environment ({ 'HOME': user_home, 'GOPATH' => project_home + '/server' })
 end
