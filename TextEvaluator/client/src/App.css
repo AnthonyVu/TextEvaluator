@@ -27,7 +27,7 @@ h1 {
 .header h2 {
   margin: auto;
   transition: all 0.4s ease 0s;
-  width: 40%;
+  width: 60%;
 }
 
 h2:hover {
@@ -136,7 +136,7 @@ button:disabled {
   cursor: pointer;
 }
 
-p img {
-  height: 1em;
-  width: auto;
+.icon {
+  vertical-align: text-bottom;
+  margin-right: 2px;
 }

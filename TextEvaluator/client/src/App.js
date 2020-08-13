@@ -2,16 +2,22 @@ import React, { useState, useEffect } from 'react'
 import Dropzone from 'react-dropzone'
 import ReactWordcloud from 'react-wordcloud'
 import fileService from './services/fileService'
-import fileImg from './file.png'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from 'recharts';
-import './App.css';
+} from 'recharts'
+import './App.css'
 import {
   BrowserRouter as Router,
   Switch, Route, useHistory
 } from "react-router-dom"
 import LoadingScreen from 'react-loading-screen'
+import HomeOutlined from '@material-ui/icons/HomeOutlined'
+import InfoOutlined from '@material-ui/icons/InfoOutlined'
+import DoneOutlined from '@material-ui/icons/DoneOutlined'
+import DeleteOutlined from '@material-ui/icons/DeleteOutlined'
+import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined'
+import CreateOutlined from '@material-ui/icons/CreateOutlined'
+import ArrowBackIosSharpIcon from '@material-ui/icons/ArrowBackIosSharp';
 
 const Header = ({setFiles, setWords}) => {
   const history = useHistory()
@@ -31,10 +37,10 @@ const Header = ({setFiles, setWords}) => {
 
   return (
     <div className="header">
-      <h2 onClick={reset}>Text Evaluator</h2>
-      <p className="nav" onClick={reset}>Home</p>
+      <h2 onClick={reset}><CreateOutlined style={{fontSize: 60, verticalAlign: 'center'}}/>Text Evaluator</h2>
+      <p className="nav" onClick={reset}> <HomeOutlined className="icon"/>Home</p>
       <p style={{fontSize: '20px', display: 'inline', margin: '10px', textDecoration: 'none'}}>|</p>
-      <p className="nav" onClick={resetAbout}>About</p>
+      <p className="nav" onClick={resetAbout}><InfoOutlined className="icon"/>About</p>
     </div>
   )
 }
@@ -47,22 +53,22 @@ const File = ({file, files, setFiles}) => {
   if (file.name.length > 75) {
     return (
       <div className="file">
-        <p><img src={fileImg} alt="logo"></img> {file.name.substring(0, 75)+"..."} <button className="fileBtn" onClick={deleteFile}>delete</button></p>
+        <p><DescriptionOutlined className="icon"/>{file.name.substring(0, 75)+"..."} <button className="fileBtn" onClick={deleteFile}><DeleteOutlined className="icon" fontSize="small"/>delete</button></p>
       </div>
     )
   }
   return (
     <div className="file">
-      <p><img src={fileImg} alt="logo"></img> {file.name} <button className="fileBtn" onClick={deleteFile}>delete</button></p>
+      <p><DescriptionOutlined className="icon"/>{file.name} <button className="fileBtn" onClick={deleteFile}><DeleteOutlined className="icon" fontSize="small"/>delete</button></p>
     </div>
   )
 }
 
 const EvaluateButton = ({files, onClick}) => {
   if(files.length === 0) {
-    return (<button disabled={true}>Evaluate</button>)
+    return (<button disabled={true}><DoneOutlined className="icon" fontSize="small" />Evaluate</button>)
   }
-  return (<button onClick={onClick}>Evaluate</button>)
+  return (<button onClick={onClick}><DoneOutlined className="icon" fontSize="small" />Evaluate</button>)
 }
 
 const CurrentFiles = ({files, setFiles}) => {
@@ -166,7 +172,7 @@ const Evaluation = ({ words, setFiles, setWords }) => {
     return (
       <div >
         <p>Empty</p>
-        <button onClick={reset}>back</button>
+        <button onClick={reset}><ArrowBackIosSharpIcon className="icon"/>back</button>
       </div>
     )
   }
@@ -201,7 +207,7 @@ const Evaluation = ({ words, setFiles, setWords }) => {
         <ReactWordcloud options={options} words={mergedData} />
       </div>
       <div style={{textAlign:'right', float:'right'}}>
-        <button onClick={reset}>back</button>
+        <button onClick={reset}><ArrowBackIosSharpIcon className="icon" style={{fontSize: 18}}/>back</button>
       </div>
       <div className="chartContainer">
         <ChartData label="Nouns" data={nouns} color="#8884d8"/>
