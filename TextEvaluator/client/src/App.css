@@ -24,9 +24,14 @@ h1 {
   float: right;
 }
 
+.header h2 {
+  margin: auto;
+  transition: all 0.4s ease 0s;
+  width: 40%;
+}
+
 h2:hover {
   color: #fd5420 !important;
-  transition: all 0.4s ease 0s;
   cursor: pointer;
 }
 
@@ -63,20 +68,15 @@ button:hover {
   color: #ffffff !important;
   background: #fd5420;
   border-color: #fd5420 !important;
-  transition: all 0.4s ease 0s;
   cursor: pointer;
 }
 
 button:disabled {
   color: #adadad !important;
-  text-transform: uppercase;
   text-decoration: none;
   background: #ffffff;
-  padding: 10px;
   border: 4px solid #adadad !important;
-  display: inline-block;
-  transition: all 0.4s ease 0s;
-  }
+}
 
 /* https://wdexplorer.com/20-examples-beautiful-css-typography-design/ */
 .about {
@@ -89,18 +89,19 @@ button:disabled {
 }
   
 .header {
-  display: flex;
   display: inline-block;
   height:100%;
-  flex-flow: column;
   padding-top: 20px;
   padding-bottom: 10px;
-  margin-bottom: 10px;
   width: 100%;
   font-size: 50px;
   text-align: center;
-  color: white;
-  background: #000000 /*url("./banner.jpeg") 100% 100% no-repeat*/; 
+  color: #000000; /*url("./banner.jpeg") 100% 100% no-repeat*/;
+}
+
+.header p {
+  /* border-bottom: 2px solid #b6b6b6; */
+  font-weight: lighter;
 }
 
 .nav {
@@ -108,11 +109,11 @@ button:disabled {
   display: inline;
   margin: 10px;
   text-decoration: none;
+  transition: all 0.4s ease 0s;
 }
 
 .nav:hover {
   color: #fd5420 !important;
-  transition: all 0.4s ease 0s;
   cursor: pointer;
 }
 
@@ -121,26 +122,17 @@ button:disabled {
   flex-direction: column;
   align-items: center;
   padding: 30px;
-  border: 1px #000000 dashed;
   color: #494949 !important;
   text-transform: uppercase;
-  background: #ffffff;
   border: 4px solid #494949 !important;
   transition: all 0.4s ease 0s;
   margin-bottom: 20px;
 }
 
 .dropzone:hover {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 30px;
-  border: 1px #000000 dashed;
-  text-transform: uppercase;
   color: #ffffff !important;
   background: #fd5420;
   border-color: #fd5420 !important;
-  transition: all 0.4s ease 0s;
   cursor: pointer;
 }
 

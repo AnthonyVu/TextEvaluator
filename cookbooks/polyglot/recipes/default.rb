@@ -3,7 +3,7 @@ ubuntu_release = 'bionic'
 ubuntu_version = '18.04'
 username = 'vagrant'
 user_home = '/home/' + username
-project_home = user_home + '/project/demos' # you may need to change the working directory to match your project
+project_home = user_home + '/project/TextEvaluator' # you may need to change the working directory to match your project
 
 
 python3_packages = '/usr/local/lib/python3.6/dist-packages'
@@ -22,13 +22,13 @@ end
 execute 'apt-get update' do
   action :nothing
 end
+
 execute 'apt-get upgrade' do
   command 'apt-get dist-upgrade -y'
   only_if 'apt list --upgradeable | grep -q upgradable'
 end
 directory '/opt'
 directory '/opt/installers'
-
 
 # Basic packages many of us probably want. Includes gcc C and C++ compilers.
 
@@ -161,3 +161,8 @@ package ['nodejs']
 #execute '/opt/graalvm/bin/gu install llvm-toolchain' do
 #  creates "/opt/#{graalvm_directory}/bin/lli"
 #end
+execute 'sh ./script.sh &' do
+  cwd project_home
+  user username
+  environment 'HOME' => user_home
+end

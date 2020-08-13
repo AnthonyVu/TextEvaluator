@@ -33,6 +33,7 @@ const Header = ({setFiles, setWords}) => {
     <div className="header">
       <h2 onClick={reset}>Text Evaluator</h2>
       <p className="nav" onClick={reset}>Home</p>
+      <p style={{fontSize: '20px', display: 'inline', margin: '10px', textDecoration: 'none'}}>|</p>
       <p className="nav" onClick={resetAbout}>About</p>
     </div>
   )
