@@ -161,8 +161,14 @@ package ['nodejs']
 #execute '/opt/graalvm/bin/gu install llvm-toolchain' do
 #  creates "/opt/#{graalvm_directory}/bin/lli"
 #end
-execute 'sh ./script.sh &' do
-  cwd project_home
+execute 'nohup npm start &' do
+  cwd project_home + '/client'
+  user username
+  environment 'HOME' => user_home
+end
+
+execute 'nohup go run main.go &' do
+  cwd project_home + '/server'
   user username
   environment 'HOME' => user_home
 end
