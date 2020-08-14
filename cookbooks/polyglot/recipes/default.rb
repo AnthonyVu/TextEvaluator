@@ -33,7 +33,7 @@ directory '/opt/installers'
 
 # Basic packages many of us probably want. Includes gcc C and C++ compilers.
 
-package ['build-essential', 'cmake']
+#package ['build-essential', 'cmake']
 
 
 # Other core language tools you might want
