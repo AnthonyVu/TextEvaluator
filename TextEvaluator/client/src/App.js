@@ -43,7 +43,7 @@ const Header = ({setFiles, words}) => {
         <p style={{fontSize: '20px', display: 'inline', margin: '10px', textDecoration: 'none'}}>|</p>
         <p className="nav" onClick={resetAbout}><InfoOutlined className="icon"/>About</p>
         <p style={{fontSize: '20px', display: 'inline', margin: '10px', textDecoration: 'none'}}>|</p>
-        <p className="nav" onClick={goToEval}>Previous Evaluation</p>
+        <p className="nav" onClick={goToEval}>Recent Evaluation</p>
       </div>
     )
   }
@@ -85,21 +85,19 @@ const EvaluateButton = ({files, onClick}) => {
 }
 
 const CurrentFiles = ({files, setFiles}) => {
-  if (files.length !== 0) {
-    return (
-      <div className="currFiles">
-        <h1>Current Files (Max of 5)</h1>
-        {files.map((file,i) => 
-          <File key={i} file={file} files={files} setFiles={setFiles} />
-        )}
-      </div>
-    )
-  }
-  return <div></div>
-  }
+  return (
+    <div className="currFiles">
+      <h1>Current Files (Max of 5)</h1>
+      {files.map((file,i) => 
+        <File key={i} file={file} files={files} setFiles={setFiles} />
+      )}
+    </div>
+  )
+}
 
 const About = () => (
   <div className="about">
+    <div className="bg1"></div>
     <p>Drop or select up to 5 files (.pdf, .doc, .docx, or .txt) and this program will evaluate the 100 most used nouns, adjectives, verbs, and adverbs.</p>
     <p>This program works well with average-sized files (less than or equal to 100,000 words). Too small a document and you may not get many results; too large and you may be waiting a while for the results to process.</p>
     <p>Make sure your files are relatively error-free, as this will definitely affect the results.</p>
@@ -142,12 +140,12 @@ const Home = ({ setWords, files, setFiles }) => {
       window.localStorage.setItem('processedData', JSON.stringify(res))
       setWords(res)
       setLoading(false)
-      console.log(res)
       history.push('/evaluation')
     });
   }
   return (
     <div>
+      <div className="bg1"></div>
       <Dropzone 
         onDrop={handleDrop}>
         {({ getRootProps, getInputProps }) => (
@@ -202,6 +200,8 @@ const Evaluation = ({ words, setFiles }) => {
 
   const options = {
     fontSizes: [12, 60],
+    colors: ['#1f77b4', '#9467bd', '#8c564b'],
+    fontWeight: 'bold',
   }
   
   var mergedData = []
@@ -224,9 +224,9 @@ const Evaluation = ({ words, setFiles }) => {
   Object.keys(words.adverbs).forEach(key => {
     adverbs.push({text: key, count: words.adverbs[key]})
   })
-  console.log(words.filenames)
   return (
     <div>
+      <div className="bg1"></div>
       <div style={{ height: '300px', width: '100%' }}>
         <ReactWordcloud options={options} words={mergedData} />
       </div>

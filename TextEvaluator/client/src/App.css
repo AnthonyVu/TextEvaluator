@@ -31,6 +31,7 @@ h1 {
   overflow: hidden;
 }
 
+/* https://stackoverflow.com/questions/29540250/dealing-with-css-text-overflow#:~:text=To%20have%20text%2Doverflow%20property,must%20be%20set%20to%20hidden%20. */
 .file p {
   margin: 0;
   text-overflow: ellipsis;
@@ -160,10 +161,18 @@ button:disabled {
   margin-right: 2px;
 }
 
-/* #root {
-  background-image:url('./background.png');
-  background-position:center;
-  position: fixed;
-  min-width: 100%;
-  min-height: 100%;
-} */
+.bg1 {
+  /* image from https://www.netclipart.com/isee/wxRbJh_transparent-smoke-effect-png-cool-effect-transparent-background/ */
+  background: url('bg1.png') no-repeat center center fixed; 
+  position: fixed; 
+  top: 0; 
+  right: 0; 
+  bottom: 0; 
+  left: 0;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  opacity: 0.3;
+  z-index:-1;
+}
