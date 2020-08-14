@@ -39,7 +39,7 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dataToProcess := evaluatedData{make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int)}
+	dataToProcess := evaluatedData{make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int, 5)}
 	//get a ref to the parsed multipart form
 	m := r.MultipartForm
 	files := m.File["file"]
@@ -55,10 +55,10 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		name := strings.Split(files[i].Filename, ".")
+		dataToProcess.Filenames[files[i].Filename] = i
 		wg.Add(1)
 		go func(*multipart.FileHeader, []string) {
 			defer wg.Done()
-			fmt.Println(name)
 			if name[1] == "docx" {
 				res, _, err := docconv.ConvertDocx(file)
 				if err != nil {
@@ -111,6 +111,7 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	// https://www.golangprograms.com/golang-read-json-file-into-struct.html
 	result, _ := ioutil.ReadFile("result.json")
 	// send to client
+	fmt.Println()
 	w.Write(result)
 	end := time.Now()
 	dur := end.Sub(start)
@@ -132,6 +133,7 @@ type evaluatedData struct {
 	Verbs      map[string]int `json:"verbs"`      // MD, VB, VBD, VBG, VBN, VBP, VBZ
 	Adverbs    map[string]int `json:"adverbs"`    //RB, RBR, RBS, RP
 	Merged     map[string]int `json:"merged"`
+	Filenames  map[string]int `json:"filenames`
 }
 
 func applyProse(text string) evaluatedData {
@@ -139,7 +141,7 @@ func applyProse(text string) evaluatedData {
 	if err != nil {
 		log.Fatal(err)
 	}
-	data := evaluatedData{make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int)}
+	data := evaluatedData{make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int)}
 	// https://stackoverflow.com/questions/31961882/how-to-check-if-there-is-a-special-character-in-string-or-if-a-character-is-a-sp
 	f := func(r rune) bool {
 		return r < 'A' || r > 'z'

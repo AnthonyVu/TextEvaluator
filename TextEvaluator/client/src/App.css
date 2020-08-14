@@ -11,13 +11,32 @@ h1 {
 }
 
 .currFiles {
-  margin-bottom: 50px;
+  display: inline-block;
+  width: 100%;
+  text-align: left;
 }
 
 .file {
   width: 100%;
-  display: inline-block;
+  margin: 10px;
+  display: flex;
   text-align: left;
+}
+
+.filesUsed {
+  margin: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  -moz-white-space: nowrap;
+  overflow: hidden;
+}
+
+.file p {
+  margin: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  -moz-white-space: nowrap;
+  overflow: hidden;
 }
 
 .fileBtn {

@@ -19,22 +19,34 @@ import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined'
 import CreateOutlined from '@material-ui/icons/CreateOutlined'
 import ArrowBackIosSharpIcon from '@material-ui/icons/ArrowBackIosSharp'
 
-const Header = ({setFiles, setWords}) => {
+const Header = ({setFiles, words}) => {
   const history = useHistory()
   const reset = () => {
     history.push('/')
     setFiles([])
-    setWords({})
-    window.localStorage.setItem('processedData', JSON.stringify({}))
   }
 
   const resetAbout = () => {
     history.push('/about')
     setFiles([])
-    setWords({})
-    window.localStorage.setItem('processedData', JSON.stringify({}))
   }
 
+  const goToEval = () => {
+    history.push('/evaluation')
+  }
+
+  if (Object.entries(words).length !== 0) {
+    return (
+      <div className="header">
+        <h2 onClick={reset}><CreateOutlined style={{fontSize: 60, verticalAlign: 'center'}}/>Text Evaluator</h2>
+        <p className="nav" onClick={reset}> <HomeOutlined className="icon"/>Home</p>
+        <p style={{fontSize: '20px', display: 'inline', margin: '10px', textDecoration: 'none'}}>|</p>
+        <p className="nav" onClick={resetAbout}><InfoOutlined className="icon"/>About</p>
+        <p style={{fontSize: '20px', display: 'inline', margin: '10px', textDecoration: 'none'}}>|</p>
+        <p className="nav" onClick={goToEval}>Previous Evaluation</p>
+      </div>
+    )
+  }
   return (
     <div className="header">
       <h2 onClick={reset}><CreateOutlined style={{fontSize: 60, verticalAlign: 'center'}}/>Text Evaluator</h2>
@@ -50,16 +62,17 @@ const File = ({file, files, setFiles}) => {
     const newFiles = files.filter(curr => curr.name !== file.name)
     setFiles(newFiles)
   }
-  if (file.name.length > 75) {
-    return (
-      <div className="file">
-        <p><DescriptionOutlined className="icon"/>{file.name.substring(0, 75)+"..."} <button className="fileBtn" onClick={deleteFile}><DeleteOutlined className="icon" fontSize="small"/>delete</button></p>
-      </div>
-    )
-  }
   return (
     <div className="file">
-      <p><DescriptionOutlined className="icon"/>{file.name} <button className="fileBtn" onClick={deleteFile}><DeleteOutlined className="icon" fontSize="small"/>delete</button></p>
+      <div style={{width: '5%'}}>
+        <DescriptionOutlined className="icon"/>
+      </div>
+      <div style={{width: '75%'}}>
+        <p>{file.name} </p>
+      </div>
+      <div style={{width: '20%'}}>
+        <button className="fileBtn" onClick={deleteFile}><DeleteOutlined className="icon" fontSize="small"/>delete</button>
+      </div>
     </div>
   )
 }
@@ -129,6 +142,7 @@ const Home = ({ setWords, files, setFiles }) => {
       window.localStorage.setItem('processedData', JSON.stringify(res))
       setWords(res)
       setLoading(false)
+      console.log(res)
       history.push('/evaluation')
     });
   }
@@ -160,13 +174,22 @@ const Home = ({ setWords, files, setFiles }) => {
   )
 }
 
-const Evaluation = ({ words, setFiles, setWords }) => {
+const FilesUsed = ({words}) => {
+  return (
+    <div>
+      <h1>Files Used</h1>
+      {Object.keys(words.filenames).map(key => {
+        return <p className="filesUsed" key={key}><DescriptionOutlined className="icon"/>{words.filenames[key][0]}</p>
+      })}
+    </div>
+  )
+}
+
+const Evaluation = ({ words, setFiles }) => {
   const history = useHistory()
   const reset = () => {
     history.push('/')
     setFiles([])
-    setWords({})
-    window.localStorage.setItem('processedData', JSON.stringify({}))
   }
   if (Object.keys(words).length === 0) {
     return (
@@ -201,6 +224,7 @@ const Evaluation = ({ words, setFiles, setWords }) => {
   Object.keys(words.adverbs).forEach(key => {
     adverbs.push({text: key, count: words.adverbs[key]})
   })
+  console.log(words.filenames)
   return (
     <div>
       <div style={{ height: '300px', width: '100%' }}>
@@ -209,6 +233,11 @@ const Evaluation = ({ words, setFiles, setWords }) => {
       <div style={{textAlign:'right', float:'right'}}>
         <button onClick={reset}><ArrowBackIosSharpIcon className="icon" style={{fontSize: 18}}/>back</button>
       </div>
+      {
+        <div className="currFiles">
+          <FilesUsed words={words}/>
+        </div>
+      } 
       <div className="chartContainer">
         <ChartData label="Nouns" data={nouns} color="#8884d8"/>
         <ChartData label="Adjectives" data={adjectives} color="#82ca9d"/>
@@ -254,11 +283,11 @@ function App() {
   return (
     <div className="App">
         <Router>
-        <Header setFiles={setFiles} setWords={setWords} />
+        <Header setFiles={setFiles} words={words} />
         <div className="content">
           <Switch>
             <Route path="/evaluation">
-              <Evaluation words={words} setFiles={setFiles} setWords={setWords}/>
+              <Evaluation words={words} setFiles={setFiles}/>
             </Route>
             <Route path="/about">
               <About />
