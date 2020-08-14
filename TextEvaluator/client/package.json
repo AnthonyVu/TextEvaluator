@@ -14,7 +14,7 @@
     "react-dropzone": "^11.0.1",
     "react-loading-screen": "0.0.17",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^3.4.1",
+    "react-scripts": "^3.4.3",
     "react-tagcloud": "^2.0.0",
     "react-wordcloud": "^1.2.6",
     "recharts": "^1.8.5"

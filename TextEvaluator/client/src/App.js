@@ -10,7 +10,6 @@ import {
   BrowserRouter as Router,
   Switch, Route, useHistory
 } from "react-router-dom"
-import LoadingScreen from 'react-loading-screen'
 import HomeOutlined from '@material-ui/icons/HomeOutlined'
 import InfoOutlined from '@material-ui/icons/InfoOutlined'
 import DoneOutlined from '@material-ui/icons/DoneOutlined'
@@ -18,6 +17,7 @@ import DeleteOutlined from '@material-ui/icons/DeleteOutlined'
 import DescriptionOutlined from '@material-ui/icons/DescriptionOutlined'
 import CreateOutlined from '@material-ui/icons/CreateOutlined'
 import ArrowBackIosSharpIcon from '@material-ui/icons/ArrowBackIosSharp'
+import loadingGif from './loading.gif'
 
 const Header = ({setFiles, words}) => {
   const history = useHistory()
@@ -105,6 +105,18 @@ const About = () => (
   </div>
 )
 
+const Loading = ({loading}) => {
+  if(loading) {
+    return (
+      <div>
+        <div className="bg2"></div>
+        <div className="overlay"><img src={loadingGif} alt="loading"/>Please Wait...</div>
+      </div>
+    )
+  }
+  return <div></div>
+}
+
 const Home = ({ setWords, files, setFiles }) => {
   const history = useHistory()
   const formData = new FormData();
@@ -156,17 +168,8 @@ const Home = ({ setWords, files, setFiles }) => {
         )}
       </Dropzone>
       <EvaluateButton files={files} onClick={evaluate}/>
-      <LoadingScreen
-        loading={loading}
-        bgColor='#ffffff'
-        // https://giphy.com/gifs/art-sonic-youchew-hoJoitYEzdRok
-        // logoSrc={loadingImg}
-        spinnerColor='#fd5420'
-        textColor='#fd5420'
-        text='Please wait...'
-        children=''
-      > 
-      </LoadingScreen>
+      {window.scrollTo(0,0)}
+      <Loading loading={loading}/>
       <CurrentFiles files={files} setFiles={setFiles}/>
     </div>
   )

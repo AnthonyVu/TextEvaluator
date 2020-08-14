@@ -176,3 +176,32 @@ button:disabled {
   opacity: 0.3;
   z-index:-1;
 }
+
+.bg2 {
+  background: url('bg1.png') no-repeat center center fixed; 
+  position: fixed; 
+  top: 0; 
+  right: 0; 
+  bottom: 0; 
+  left: 0;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  opacity: 0.5;
+  z-index:50;
+}
+
+.overlay {
+  width: 100%; 
+  height: 100%;
+  position: fixed; 
+  top: 0; 
+  left: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: #fd5420;
+  font-size: x-large;
+  z-index: 100;
+}
