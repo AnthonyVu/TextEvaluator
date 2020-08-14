@@ -188,7 +188,7 @@ execute 'go get code.sajari.com/docconv github.com/gorilla/mux github.com/jdkato
   environment ({ 'HOME' => user_home, 'GOPATH' => project_home + '/server' })
 end
 execute 'screen -S server -dm go run main.go' do
-  cwd project_home + '/server'
+  cwd project_home + '/server/src'
   user username
   environment ({ 'HOME': user_home, 'GOPATH' => project_home + '/server' })
 end
