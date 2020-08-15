@@ -163,7 +163,7 @@ button:disabled {
 
 .bg1 {
   /* image from https://www.netclipart.com/isee/wxRbJh_transparent-smoke-effect-png-cool-effect-transparent-background/ */
-  background: url('bg1.png') no-repeat center center fixed; 
+  background: url('./images/bg.png') no-repeat center center fixed; 
   position: fixed; 
   top: 0; 
   right: 0; 
@@ -178,7 +178,7 @@ button:disabled {
 }
 
 .bg2 {
-  background: url('bg1.png') no-repeat center center fixed; 
+  background: url('./images/bg.png') no-repeat center center fixed; 
   position: fixed; 
   top: 0; 
   right: 0; 
@@ -188,7 +188,7 @@ button:disabled {
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  opacity: 0.5;
+  opacity: 0.7;
   z-index:50;
 }
 

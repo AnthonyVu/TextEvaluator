@@ -6,14 +6,15 @@ f = open('data.json', 'r')
 data = json.loads(f.read())
 
 # https://stackoverflow.com/questions/8287000/get-first-n-key-pairs-from-an-ordered-dictionary-to-another-one
+# sort maps by word count
 nouns = OrderedDict(sorted(data['nouns'].items(), key=itemgetter(1), reverse=True))
 adjectives = OrderedDict(sorted(data['adjectives'].items(), key=itemgetter(1), reverse=True))
 verbs = OrderedDict(sorted(data['verbs'].items(), key=itemgetter(1), reverse=True))
 adverbs = OrderedDict(sorted(data['adverbs'].items(), key=itemgetter(1), reverse=True))
 merged = OrderedDict(sorted(data['merged'].items(), key=itemgetter(1), reverse=True))
-filenames = data['Filenames'].items()
+filenames = data['filenames'].items()
 
-# change the value later
+# max number of words to get from each category
 count = 100 
 
 nouns = dict(nouns.items()[:count])

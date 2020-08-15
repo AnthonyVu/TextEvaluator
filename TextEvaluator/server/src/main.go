@@ -13,13 +13,21 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
-	"time"
 
 	"code.sajari.com/docconv"
 	"github.com/gorilla/mux"
 	"github.com/jdkato/prose"
 	"github.com/rs/cors"
 )
+
+type evaluatedData struct {
+	Nouns      map[string]int `json:"nouns"`      //NN, NNP, NNS, POS, PRP, PRP$
+	Adjectives map[string]int `json:"adjectives"` //JJ, JJR, JJS
+	Verbs      map[string]int `json:"verbs"`      // MD, VB, VBD, VBG, VBN, VBP, VBZ
+	Adverbs    map[string]int `json:"adverbs"`    //RB, RBR, RBS, RP
+	Merged     map[string]int `json:"merged"`
+	Filenames  map[string]int `json:"filenames"`
+}
 
 // https://golang.org/pkg/mime/multipart/
 type FileHeader struct {
@@ -29,10 +37,10 @@ type FileHeader struct {
 	// contains filtered or unexported fields
 }
 
-// http://sanatgersappa.blogspot.com/2013/03/handling-multiple-file-uploads-in-go.html
+// get top nouns, adjectives, verbs, adverbs and return to client
 func evaluateFile(w http.ResponseWriter, r *http.Request) {
-	start := time.Now()
 	fmt.Println("Endpoint hit: homePage")
+	// http://sanatgersappa.blogspot.com/2013/03/handling-multiple-file-uploads-in-go.html
 	err := r.ParseMultipartForm(32 * 1 << 20) // 32 MB
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -40,23 +48,24 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dataToProcess := evaluatedData{make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int), make(map[string]int, 5)}
-	//get a ref to the parsed multipart form
+	// get a ref to the parsed multipart form
 	m := r.MultipartForm
 	files := m.File["file"]
 	var buf bytes.Buffer
 	ch := make(chan evaluatedData, 5) // max of 5 goroutines
 	wg := sync.WaitGroup{}
 	for i := range files {
-		//for each fileheader, get a handle to the actual file
+		// for each fileheader, get a handle to the actual file
 		file, err := files[i].Open()
 		defer file.Close()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		name := strings.Split(files[i].Filename, ".")
+		name := strings.Split(files[i].Filename, ".") // split filename into name and file type
 		dataToProcess.Filenames[files[i].Filename] = i
 		wg.Add(1)
+		// create a go routine to process each file received
 		go func(*multipart.FileHeader, []string) {
 			defer wg.Done()
 			if name[1] == "docx" {
@@ -89,17 +98,20 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	}
 	wg.Wait()
 	close(ch)
+
+	// merge into one structure for easier processing in python script
 	for f := range ch {
 		dataToProcess.merge(f)
 	}
 
-	//https://www.golangprograms.com/golang-writing-struct-to-json-file.html
+	// https://www.golangprograms.com/golang-writing-struct-to-json-file.html
 	// write result out to file
 	file, _ := json.MarshalIndent(dataToProcess, "", " ")
 	_ = ioutil.WriteFile("data.json", file, 0644)
 
-	// read result in python and sort the map write to another file
 	// https://stackoverflow.com/questions/41415337/running-external-python-in-golang-catching-continuous-exec-command-stdout
+	// read result in python and sort the map
+	// write to another file
 	cmd := exec.Command("python", "script.py")
 	output, err := cmd.Output()
 	if err != nil {
@@ -107,15 +119,12 @@ func evaluateFile(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println(string(output))
 
-	// read result from file
 	// https://www.golangprograms.com/golang-read-json-file-into-struct.html
+	// read result from file
 	result, _ := ioutil.ReadFile("result.json")
+
 	// send to client
-	fmt.Println()
 	w.Write(result)
-	end := time.Now()
-	dur := end.Sub(start)
-	fmt.Println(dur)
 	return
 }
 
@@ -127,15 +136,7 @@ func (orig evaluatedData) merge(ed evaluatedData) {
 	mergeMaps(orig.Verbs, ed.Verbs)
 }
 
-type evaluatedData struct {
-	Nouns      map[string]int `json:"nouns"`      //NN, NNP, NNS, POS, PRP, PRP$
-	Adjectives map[string]int `json:"adjectives"` //JJ, JJR, JJS
-	Verbs      map[string]int `json:"verbs"`      // MD, VB, VBD, VBG, VBN, VBP, VBZ
-	Adverbs    map[string]int `json:"adverbs"`    //RB, RBR, RBS, RP
-	Merged     map[string]int `json:"merged"`
-	Filenames  map[string]int `json:"filenames`
-}
-
+// generate all nouns, adjectives, verbs, and adverbs
 func applyProse(text string) evaluatedData {
 	doc, err := prose.NewDocument(text)
 	if err != nil {
@@ -146,10 +147,11 @@ func applyProse(text string) evaluatedData {
 	f := func(r rune) bool {
 		return r < 'A' || r > 'z'
 	}
-	// Iterate over the doc's tokens:
+	// Iterate over the doc's tokens
 	for _, tok := range doc.Tokens() {
 		text := strings.ToLower(tok.Text)
 		tag := tok.Tag
+		// only add words that are more than one character and make sure word only contains valid characters in alphabet
 		if len(text) > 1 && strings.IndexFunc(text, f) == -1 {
 			if tag == "NN" || tag == "NNS" || tag == "PRP" || tag == "PRP$" {
 				if _, ok := data.Nouns[text]; ok {
