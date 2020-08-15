@@ -51,7 +51,7 @@ const Home = ({ setWords, files, setFiles}) => {
           {({ getRootProps, getInputProps }) => (
             <div className="dropzone" {...getRootProps()}>
               <input {...getInputProps()}/>
-              <p>Drag'n'drop a file, or click to select a file.</p>
+              <p>Drag'n'drop a file, or click to select a file (.pdf, .doc, .docx, or .txt)</p>
             </div>
           )}
         </Dropzone>
