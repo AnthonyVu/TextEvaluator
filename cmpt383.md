@@ -16,7 +16,7 @@ I used JavaScript (React) to build my frontend, Golang for my backend, and Pytho
 ### What features should we be looking for when marking your project?
 - When the results of the data are evaluated:
   - a word cloud of a mixture of nouns, adjectives, verbs, and adverbs will be shown
-  - there are four separate bar charts for each category (nouns, adjectives, verbs, adverbs). You can hover over each bar to see the word and its word count.
+  - there are four separate bar charts for each category (nouns, adjectives, verbs, adverbs). You can hover over each bar to see each word and its word count.
 - The results of the last evaluation will be saved to local storage, so you are free to refresh the page, go to another page, etc., and the data will still be there.
 - When processing the files, I used goroutines and wait groups to semi-efficiently evaluate the data. I say semi-efficiently because there are definitely ways to improve the processing speed for larger files.
 One thing that I would like to change in the future is to separate the files into different chunks to further increase the processing speed.
