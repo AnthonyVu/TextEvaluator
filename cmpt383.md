@@ -6,7 +6,7 @@ fun like "what words does the current President of the United States like to use
 I used JavaScript (React) to build my frontend, Golang for my backend, and Python to help process data in the backend.
 ### What methods did you use to communicate between languages?
 1. I created a REST server using Golang to allow the frontend to send POST requests to the backend.
-2. I used a Python script to sort the map of words and write the results to a JSON file. I then used Golang to send the sorted data from the JSON file to the client. Golang doesn't really have a simple way of sorting maps, which is why I used Python.
+2. I used a Python script to sort the map of words and write the results to a JSON file. I then used Golang to read the JSON file and send the sorted data to the client. Golang doesn't really have a simple way of sorting maps, which is why I used Python.
 ### Exactly what steps should be taken to get the project working, after getting your code? [This should start with vagrant up and can include one or two commands to start components after that.]
 1. Open a shell/terminal in the project directory as administrator (**windows commands**: Alt + f -> s -> a). Windows users will need to do this due to symbolic link issues on Vagrant. I'm not sure if this affects other operating systems but run as administrator just in case.
 2. run 'vagrant up'
