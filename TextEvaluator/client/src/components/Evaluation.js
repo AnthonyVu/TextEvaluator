@@ -24,6 +24,7 @@ const Evaluation = ({ words, setFiles }) => {
       fontSizes: [12, 60],
       colors: ['#1f77b4', '#9467bd', '#8c564b'],
       fontWeight: 'bold',
+      enableTooltip: false,
     }
     
     var mergedData = []
