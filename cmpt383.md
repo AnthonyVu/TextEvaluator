@@ -14,6 +14,8 @@ I used JavaScript (React) to build my frontend, Golang for my backend, and Pytho
 4. go to localhost:3000
 5. select files to evaluate (test files can be found in 'TextEvaluator/test_files' directory if you don't want to download your own)
 ### What features should we be looking for when marking your project?
+- You can mix any .pdf, .txt. .doc, and .docx file
+- You can delete any currently uploaded files
 - When the results of the data are evaluated:
   - a word cloud of a mixture of nouns, adjectives, verbs, and adverbs will be shown
   - there are four separate bar charts for each category (nouns, adjectives, verbs, adverbs). You can hover over each bar to see each word and its word count.
